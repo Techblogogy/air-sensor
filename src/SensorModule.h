@@ -7,14 +7,15 @@ class SensorModule {
 public:
 
     SensorModule(int tickTime);
-    ~SensorModule();
 
-    void Tick();
-    void Send();
+    virtual void Tick();
+    virtual void Send();
+
+    virtual float GetData();
 
 private:
 
-    int data;
+    float data;
     int tickTime;
 
 };

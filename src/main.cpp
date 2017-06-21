@@ -1,5 +1,10 @@
 #include <Arduino.h>
 
+#include <SensorModule.h>
+#include <MicModule.h>
+
+#include <Global.h>
+
 #define SOUND_PIN 0
 
 #define ADC_SOUND_REF 5
@@ -35,39 +40,39 @@ double get_abs_db(int input) {
  *
  */
 void captureSound() {
-  // subtract the last reading:
-  total = total - readings[readIndex];
-  // read from the sensor:
-  readings[readIndex] = analogRead(SOUND_PIN);
-  // add the reading to the total:
-  total = total + readings[readIndex];
-  // advance to the next position in the array:
-  readIndex = readIndex + 1;
+    // subtract the last reading:
+    total = total - readings[readIndex];
+    // read from the sensor:
+    readings[readIndex] = analogRead(SOUND_PIN);
+    // add the reading to the total:
+    total = total + readings[readIndex];
+    // advance to the next position in the array:
+    readIndex = readIndex + 1;
 
-  // if we're at the end of the array...
-  if (readIndex >= numReadings) {
+    // if we're at the end of the array...
+    if (readIndex >= numReadings) {
     // ...wrap around to the beginning:
     readIndex = 0;
-  }
+    }
 
-  // calculate the average:
-  average = total / numReadings;
+    // calculate the average:
+    average = total / numReadings;
 
-  // Print some messages
-  Serial.print("Analog: ");
-  Serial.print(average);
-  Serial.print(" (");
+    // Print some messages
+    Serial.print("Analog: ");
+    Serial.print(average);
+    Serial.print(" (");
 
-  // Print absolute sound db from level value
-  Serial.print(get_abs_db(average));
-  Serial.print("-");
+    // Print absolute sound db from level value
+    Serial.print(get_abs_db(average));
+    Serial.print("-");
 
-  // Print absolute sound db from SOUND_PIN read
-  Serial.print(get_abs_db(analogRead(SOUND_PIN)));
+    // Print absolute sound db from SOUND_PIN read
+    Serial.print(get_abs_db(analogRead(SOUND_PIN)));
 
-  Serial.println(" db)");
+    Serial.println(" db)");
 
-  delay(1);        // delay in between reads for stability
+    delay(1);        // delay in between reads for stability
 }
 
 /**
@@ -96,33 +101,33 @@ float dustDensity = 0;
  *
  */
 void captureDust() {
-  digitalWrite(ledPower,LOW); // power on the LED
-  delayMicroseconds(samplingTime);
+    digitalWrite(ledPower,LOW); // power on the LED
+    delayMicroseconds(samplingTime);
 
-  voMeasured = analogRead(measurePin); // read the dust value
+    voMeasured = analogRead(measurePin); // read the dust value
 
-  delayMicroseconds(deltaTime);
-  digitalWrite(ledPower,HIGH); // turn the LED off
-  delayMicroseconds(sleepTime);
+    delayMicroseconds(deltaTime);
+    digitalWrite(ledPower,HIGH); // turn the LED off
+    delayMicroseconds(sleepTime);
 
-  // 0 - 3.3V mapped to 0 - 1023 integer values
-  // recover voltage
-  calcVoltage = voMeasured * (3.3 / 1024);
+    // 0 - 3.3V mapped to 0 - 1023 integer values
+    // recover voltage
+    calcVoltage = voMeasured * (3.3 / 1024);
 
-  // linear eqaution taken from http://www.howmuchsnow.com/arduino/airquality/
-  // Chris Nafis (c) 2012
-  dustDensity = 0.17 * calcVoltage - 0.1;
+    // linear eqaution taken from http://www.howmuchsnow.com/arduino/airquality/
+    // Chris Nafis (c) 2012
+    dustDensity = 0.17 * calcVoltage - 0.1;
 
-  Serial.print("Raw Signal Value (0-1023): ");
-  Serial.print(voMeasured);
+    Serial.print("Raw Signal Value (0-1023): ");
+    Serial.print(voMeasured);
 
-  Serial.print(" - Voltage: ");
-  Serial.print(calcVoltage);
+    Serial.print(" - Voltage: ");
+    Serial.print(calcVoltage);
 
-  Serial.print(" - Dust Density: ");
-  Serial.println(dustDensity);
+    Serial.print(" - Dust Density: ");
+    Serial.println(dustDensity);
 
-  delay(1000);
+    delay(1000);
 }
 
 
@@ -135,42 +140,54 @@ void catpureCO() {
 
 }
 
+SensorModule *sm;
+MicModule *mm;
+SensorModule *micM;
 
-/**
- *
- * Connect ESP8266 to Wi-Fi AP
- *
- */
-void wifiConnect() {
+void initSensors() {
 
 }
 
-/**
- *
- * Send Data to Server
- *
- */
-void dataSend() {
+void collectData() {
 
 }
 
+void sendData() {
+
+}
 
 
 void setup() {
-  // Initilize hardware serial
-  Serial.begin(9600);
+    // Initilize hardware serial
+    Serial.begin(9600);
 
-  // Initilize avarage sound array
-  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-    readings[thisReading] = 0;
-  }
+    sm = new SensorModule(10);
+    mm = new MicModule(10);
+    micM = new MicModule(10);
 
-  // Initialize LED for Sharp Dust Sensor
-  pinMode(ledPower,OUTPUT);
+    // // Initilize avarage sound array
+    // for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+    //   readings[thisReading] = 0;
+    // }
+    //
+    // // Initialize LED for Sharp Dust Sensor
+    // pinMode(ledPower,OUTPUT);
+
+    initSensors();
+
 
 }
 
 void loop() {
-//  captureSound();
-  captureDust();
+    // //  captureSound();
+    //   captureDust();
+
+    collectData();
+    sendData();
+
+    sleep(WIFI_SEND_RATIO);
+
+    sm->Tick();
+    mm->Tick();
+    micM->Tick();
 }
