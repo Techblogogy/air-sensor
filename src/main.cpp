@@ -3,80 +3,12 @@
 #include <SensorModule.h>
 #include <MicModule.h>
 
-#include <Global.h>
-
-#define SOUND_PIN 0
-
-#define ADC_SOUND_REF 5
-#define DB_SOUND_REF 38
+#include "Globals.h"
 
 
 /**
-  * Variables for calculating avagare microphone value
   *
-  */
-const int numReadings = 100;
-
-int readings[numReadings];      // the readings from the analog input
-int readIndex = 0;              // the index of the current reading
-int total = 0;                  // the running total
-int average = 0;                // the average
-
-
-/**
- *
- * Helper Method for converting ADC microphone value into DB
- *
- * {input}  Analog read value of micrphone sensor
- *
- */
-double get_abs_db(int input) {
-   return 20 * log((double)input / (double)ADC_SOUND_REF) + DB_SOUND_REF;
-}
-
-/*
- *
- * Method For Capturing Audio Source From Microphone (Main Entry Point for microphone state)
- *
- */
-void captureSound() {
-    // subtract the last reading:
-    total = total - readings[readIndex];
-    // read from the sensor:
-    readings[readIndex] = analogRead(SOUND_PIN);
-    // add the reading to the total:
-    total = total + readings[readIndex];
-    // advance to the next position in the array:
-    readIndex = readIndex + 1;
-
-    // if we're at the end of the array...
-    if (readIndex >= numReadings) {
-    // ...wrap around to the beginning:
-    readIndex = 0;
-    }
-
-    // calculate the average:
-    average = total / numReadings;
-
-    // Print some messages
-    Serial.print("Analog: ");
-    Serial.print(average);
-    Serial.print(" (");
-
-    // Print absolute sound db from level value
-    Serial.print(get_abs_db(average));
-    Serial.print("-");
-
-    // Print absolute sound db from SOUND_PIN read
-    Serial.print(get_abs_db(analogRead(SOUND_PIN)));
-
-    Serial.println(" db)");
-
-    delay(1);        // delay in between reads for stability
-}
-
-/**
-  * Variables for calculating avagare microphone value
+  * Variables for calculating Sharp Dust Sensor Values
   *
   */
 
@@ -131,29 +63,27 @@ void captureDust() {
 }
 
 
-/**
- *
- * Method for handling CO sensor (Main Entry Point for CO state)
- *
- */
-void catpureCO() {
-
-}
-
-SensorModule *sm;
-MicModule *mm;
-SensorModule *micM;
+const int moduleCount = 3;
+SensorModule *sensors[moduleCount] = {
+    new MicModule(MIC_PIN, MIC_ADC_SOUND_REF, MIC_DB_SOUND_REF),
+    new SensorModule()
+};
 
 void initSensors() {
-
 }
 
 void collectData() {
 
+    for (int i=0; i<moduleCount; i++) {
+        sensors[i]->Tick();
+    }
+
 }
 
 void sendData() {
-
+    for (int i=0; i<moduleCount; i++) {
+        // Serial.println(sensors[i]->Send());
+    }
 }
 
 
@@ -161,33 +91,17 @@ void setup() {
     // Initilize hardware serial
     Serial.begin(9600);
 
-    sm = new SensorModule(10);
-    mm = new MicModule(10);
-    micM = new MicModule(10);
-
-    // // Initilize avarage sound array
-    // for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-    //   readings[thisReading] = 0;
-    // }
-    //
     // // Initialize LED for Sharp Dust Sensor
     // pinMode(ledPower,OUTPUT);
 
     initSensors();
-
-
 }
 
 void loop() {
-    // //  captureSound();
-    //   captureDust();
 
     collectData();
     sendData();
 
-    sleep(WIFI_SEND_RATIO);
+    delay(WIFI_SEND_RATIO);
 
-    sm->Tick();
-    mm->Tick();
-    micM->Tick();
 }

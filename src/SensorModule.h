@@ -6,10 +6,10 @@ class SensorModule {
 
 public:
 
-    SensorModule(int tickTime);
+    SensorModule();
 
     virtual void Tick();
-    virtual void Send();
+    virtual int Send();
 
     virtual float GetData();
 

@@ -50,7 +50,7 @@
 #define WIFI_SETUP_AP_SSID "Meteo_Sensor_1" // AP Name For Setup Purposes
 #define WIFI_SETUP_AP_PASS "fabricatoROKS" // AP Name For
 
-#define WIFI_SEND_RATIO 30000
+#define WIFI_SEND_RATIO 50000
 
 #define WIFI_SERVER_IP "10.1.4.5"
 #define WIFI_SERVER_PORT "8000"
