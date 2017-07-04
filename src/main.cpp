@@ -3,6 +3,8 @@
 #include <SensorModule.h>
 #include <MicModule.h>
 
+#include <SoftwareSerial.h>
+
 #include "Globals.h"
 
 // TODO: Plan For Today:
@@ -10,7 +12,7 @@
 // TODO: Upload code into Chineese Arduino (+)
 
 // TODO: Get Data from Dust Sensor +
-// TODO: Hook in CO2 Sensor 
+// TODO: Hook in CO2 Sensor +
 // TODO: Calibrated Audio
 
 // TODO: Create Universal Data Buffer
@@ -42,9 +44,9 @@
  *
  */
 
-float voMeasured = 0;
-float calcVoltage = 0;
-float dustDensity = 0;
+float voMeasured = 0; // Measured Voltage 
+float calcVoltage = 0; // Calculated Voltage
+float dustDensity = 0; // Dust density calculation
 
 void initDust() {
     pinMode(DUST_LED_PIN, OUTPUT);
@@ -81,6 +83,50 @@ void captureDust() {
 }
 
 
+/*
+ *
+ * Methods for handling CO2 dust sensor
+ *
+ */
+
+SoftwareSerial co2Serial(CO2_TX_PIN, CO2_RX_PIN);
+
+byte cmd[9] = {0xFF,0x01,0x86,0x00,0x00,0x00,0x00,0x00,0x79}; 
+unsigned char response[9];
+
+unsigned int ppmCO2 = 0;
+
+void initCO2() {
+    co2Serial.begin(9600);
+}
+
+void captureCO2() {
+    co2Serial.write(cmd, 9);
+
+    memset(response, 0, 9);
+    co2Serial.readBytes(response, 9);
+
+    // Serial.println(response);
+
+    int i;
+    byte crc = 0;
+    for (i = 1; i < 8; i++) crc+=response[i];
+    crc = 255 - crc;
+    crc++;
+
+    if ( !(response[0] == 0xFF && response[1] == 0x86 && response[8] == crc) ) {
+        Serial.println("CRC error: " + String(crc) + " / "+ String(response[8]));
+    } else {
+        unsigned int responseHigh = (unsigned int) response[2];
+        unsigned int responseLow = (unsigned int) response[3];
+        ppmCO2 = (256*responseHigh) + responseLow;
+
+        Serial.println(ppmCO2);
+    }
+
+    delay(10000);
+}
+
 const int moduleCount = 3;
 SensorModule *sensors[moduleCount] = {
     new MicModule(MIC_PIN, MIC_ADC_SOUND_REF, MIC_DB_SOUND_REF),
@@ -110,7 +156,8 @@ void setup() {
     Serial.begin(9600);
 
     // // Initialize LED for Sharp Dust Sensor
-    initDust();
+    // initDust();
+    initCO2();
 
     // initSensors();
 }
@@ -120,7 +167,8 @@ void loop() {
     // collectData();
     // sendData();
 
-    captureDust();
+    // captureDust();
+    captureCO2();
 
     // delay(WIFI_SEND_RATIO);
 }
