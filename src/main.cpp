@@ -5,6 +5,18 @@
 
 #include "Globals.h"
 
+// TODO: Plan For Today:
+
+// TODO: Upload code into Chineese Arduino (+)
+
+// TODO: Get Data from Dust Sensor
+// TODO: Hook in CO2 Sensor
+// TODO: Calibrated Audio
+
+// TODO: Create Universal Data Buffer
+
+// TODO: Send sensor data over wifi
+
 
 /**
   *
