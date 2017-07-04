@@ -9,8 +9,8 @@
 
 // TODO: Upload code into Chineese Arduino (+)
 
-// TODO: Get Data from Dust Sensor
-// TODO: Hook in CO2 Sensor
+// TODO: Get Data from Dust Sensor +
+// TODO: Hook in CO2 Sensor 
 // TODO: Calibrated Audio
 
 // TODO: Create Universal Data Buffer
@@ -24,35 +24,41 @@
   *
   */
 
-int measurePin = 1;
-int ledPower = 12;
+// int measurePin = 1;
+// int ledPower = 12;
 
-int samplingTime = 280;
-int deltaTime = 40;
-int sleepTime = 9680;
+// int samplingTime = 280;
+// int deltaTime = 40;
+// int sleepTime = 9680;
 
-float voMeasured = 0;
-float calcVoltage = 0;
-float dustDensity = 0;
 
 
 /*
  *
- * Method for handling Sharp Dust Sensors (Main Entry Point for Dust state)
+ * Methods for handling Sharp Dust Sensors (Main Entry Point for Dust state)
  *
  * Tutorial (Schematics) Stored Here
  * http://arduinodev.woofex.net/2012/12/01/standalone-sharp-dust-sensor/
  *
  */
+
+float voMeasured = 0;
+float calcVoltage = 0;
+float dustDensity = 0;
+
+void initDust() {
+    pinMode(DUST_LED_PIN, OUTPUT);
+}
+
 void captureDust() {
-    digitalWrite(ledPower,LOW); // power on the LED
-    delayMicroseconds(samplingTime);
+    digitalWrite(DUST_LED_PIN, LOW); // power on the LED
+    delayMicroseconds(DUST_SAMPLE_TIME);
 
-    voMeasured = analogRead(measurePin); // read the dust value
+    voMeasured = analogRead(DUST_MEASURE_PIN); // read the dust value
 
-    delayMicroseconds(deltaTime);
-    digitalWrite(ledPower,HIGH); // turn the LED off
-    delayMicroseconds(sleepTime);
+    delayMicroseconds(DUST_DELTA_TIME);
+    digitalWrite(DUST_LED_PIN, HIGH); // turn the LED off
+    delayMicroseconds(DUST_SLEEP_TIME);
 
     // 0 - 3.3V mapped to 0 - 1023 integer values
     // recover voltage
@@ -104,16 +110,17 @@ void setup() {
     Serial.begin(9600);
 
     // // Initialize LED for Sharp Dust Sensor
-    // pinMode(ledPower,OUTPUT);
+    initDust();
 
-    initSensors();
+    // initSensors();
 }
 
 void loop() {
 
-    collectData();
-    sendData();
+    // collectData();
+    // sendData();
 
-    delay(WIFI_SEND_RATIO);
+    captureDust();
 
+    // delay(WIFI_SEND_RATIO);
 }

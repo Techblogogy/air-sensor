@@ -15,7 +15,7 @@
  *  DFRobots Microphone Constants
  */
 
-#define MIC_PIN 2 // Analog Input Pin
+#define MIC_PIN 1 // Analog Input Pin
 
 #define MIC_ADC_SOUND_REF 5
 #define MIC_DB_SOUND_REF 38
@@ -26,7 +26,7 @@
  *  Sharp Dust Sensors Constants
  */
 
-#define DUST_MEASURE_PIN 1  // Analog Input Pin
+#define DUST_MEASURE_PIN 6  // Analog Input Pin
 #define DUST_LED_PIN 12 // Digital Input Pin
 
 #define DUST_SAMPLE_TIME 280
@@ -37,8 +37,8 @@
  *  CO2 Sensors Constants
  */
 
-#define CO2_TX_PIN 5 // Digital Input Pin
-#define CO2_RX_PIN 6 // Digital Input Pin
+#define CO2_TX_PIN 4 // Digital Input Pin
+#define CO2_RX_PIN 5 // Digital Input Pin
 
 /**
  * Wi-Fi Constants
