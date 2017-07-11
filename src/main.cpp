@@ -128,16 +128,18 @@ double get_abs_db(int input) {
 }
 
 void captureAudio() {
-    Serial.println(audioAnalog);
+    audioAnalog = 0;
 
-    for (int i=0; i<MIC_READINGS) {
-        audioAnalog += analogRead(MIC_PIN);
+    for (int i=0; i<MIC_READINGS; i++) {
+        // audioAnalog += analogRead(MIC_PIN);
+        if (analogRead(MIC_PIN) > audioAnalog) {
+            audioAnalog = analogRead(MIC_PIN);
+        }
         delay(1);
     }
-    audioAnalog /= MIC_READINGS;
+    // audioAnalog /= MIC_READINGS;
 
     Serial.println(audioAnalog);
-
 
     // audioValue = get_abs_db(audioAnalog);
     // Serial.println(audioValue);
