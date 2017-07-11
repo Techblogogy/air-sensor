@@ -1,37 +1,21 @@
 #include <Arduino.h>
+#include <SoftwareSerial.h>
 
 #include <SensorModule.h>
 #include <MicModule.h>
 
-#include <SoftwareSerial.h>
+#include "wifi/SerialESP8266wifi.h"
 
 #include "Globals.h"
 
 // TODO: Plan For Today:
 
-// TODO: Upload code into Chineese Arduino (+)
+// TODO: Calibrated Audio 
 
-// TODO: Get Data from Dust Sensor +
-// TODO: Hook in CO2 Sensor +
-// TODO: Calibrated Audio
-
-// TODO: Create Universal Data Buffer
+// TODO: Setup ESP8266 to receive data from Arduino
+// TODO: Setup ESP8266 to transmit data to Agents server
 
 // TODO: Send sensor data over wifi
-
-
-/**
-  *
-  * Variables for calculating Sharp Dust Sensor Values
-  *
-  */
-
-// int measurePin = 1;
-// int ledPower = 12;
-
-// int samplingTime = 280;
-// int deltaTime = 40;
-// int sleepTime = 9680;
 
 
 
@@ -106,8 +90,6 @@ void captureCO2() {
     memset(response, 0, 9);
     co2Serial.readBytes(response, 9);
 
-    // Serial.println(response);
-
     int i;
     byte crc = 0;
     for (i = 1; i < 8; i++) crc+=response[i];
@@ -119,13 +101,87 @@ void captureCO2() {
     } else {
         unsigned int responseHigh = (unsigned int) response[2];
         unsigned int responseLow = (unsigned int) response[3];
-        ppmCO2 = (256*responseHigh) + responseLow;
+
+        ppmCO2 = (256 * responseHigh) + responseLow;
 
         Serial.println(ppmCO2);
     }
 
     delay(10000);
 }
+
+/*
+ *
+ * Methods for handling audio capture
+ *
+ */
+
+int audioAnalog = 0;
+double audioValue = 0;
+
+void initAudio() {
+
+}
+
+double get_abs_db(int input) {
+   return 20 * log((double)input / (double)MIC_ADC_SOUND_REF) + MIC_DB_SOUND_REF;
+}
+
+void captureAudio() {
+    audioAnalog = analogRead(MIC_PIN);
+    Serial.println(audioAnalog);
+
+    audioValue = get_abs_db(audioAnalog);
+    Serial.println(audioValue);
+}
+
+/**
+  *
+  * WiFi connection
+  *
+  */
+
+SoftwareSerial wifiSerial(WIFI_TX_PIN, WIFI_RX_PIN);
+SerialESP8266wifi wifi(wifiSerial, wifiSerial, WIFI_RST_PIN);
+
+bool wifiCon = false;
+bool wifiLocal = false;
+
+void initWifi() {
+
+    // wifiSerial.begin(115200);
+
+    // bool wifiStart = wifi.begin();
+
+    // if (wifiStart) {
+    //     wifiCon = wifi.connectToAP(WIFI_SSID, WIFI_PASS);
+
+    //     if (wifi.isConnectedToAP()) {
+    //         Serial.println("Connected to Wi-Fi");
+    //     } else {
+    //         Serial.println("Wi-Fi Connection Failed");
+
+    //         wifiLocal = wifi.startLocalAPAndServer(WIFI_SETUP_AP_SSID, WIFI_SETUP_AP_PASS, "6", "8080");
+
+    //         if (wifi.isLocalAPAndServerRunning()) {
+    //             Serial.println("Started Local AP and Server");
+    //         } else {
+    //             Serial.println("Failed to start local AP and server");
+    //         }
+    //     }
+    // } else {
+    //     Serial.println("Failed to start Wifi Module");
+    // }
+
+}
+
+void sendWifi() {
+
+}
+
+
+
+
 
 const int moduleCount = 3;
 SensorModule *sensors[moduleCount] = {
@@ -155,8 +211,11 @@ void setup() {
     // Initilize hardware serial
     Serial.begin(9600);
 
+    initWifi();
+
     // // Initialize LED for Sharp Dust Sensor
-    // initDust();
+    initAudio();
+    initDust();
     initCO2();
 
     // initSensors();
@@ -167,8 +226,9 @@ void loop() {
     // collectData();
     // sendData();
 
+    captureAudio();
     // captureDust();
-    captureCO2();
+    // captureCO2();
 
-    // delay(WIFI_SEND_RATIO);
+    delay(WIFI_SEND_RATIO);
 }

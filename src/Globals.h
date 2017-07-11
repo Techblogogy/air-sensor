@@ -37,20 +37,25 @@
  *  CO2 Sensors Constants
  */
 
-#define CO2_TX_PIN 4 // Digital Input Pin
-#define CO2_RX_PIN 5 // Digital Input Pin
+#define CO2_TX_PIN 4 // Digital Pin
+#define CO2_RX_PIN 5 // Digital Pin
 
 /**
  * Wi-Fi Constants
  */
 
-#define WIFI_TX_PIN 2 // Digital Input Pin
-#define WIFI_RX_PIN 3 // Digital Input Pin
+#define WIFI_TX_PIN 3 // Digital Pin
+#define WIFI_RX_PIN 2 // Digital Pin
+#define WIFI_RST_PIN 6 // Digital Pin
+
+#define WIFI_SSID "TCDC_Guest"
+#define WIFI_PASS ""
+// #define WIFI_PASS "fablab"
 
 #define WIFI_SETUP_AP_SSID "Meteo_Sensor_1" // AP Name For Setup Purposes
 #define WIFI_SETUP_AP_PASS "fabricatoROKS" // AP Name For
 
-#define WIFI_SEND_RATIO 50000
+#define WIFI_SEND_RATIO 250
 
 #define WIFI_SERVER_IP "10.1.4.5"
 #define WIFI_SERVER_PORT "8000"
