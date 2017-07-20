@@ -131,15 +131,23 @@ void captureAudio() {
     audioAnalog = 0;
 
     for (int i=0; i<MIC_READINGS; i++) {
-        // audioAnalog += analogRead(MIC_PIN);
-        if (analogRead(MIC_PIN) > audioAnalog) {
-            audioAnalog = analogRead(MIC_PIN);
-        }
+        audioAnalog = max(analogRead(MIC_PIN), audioAnalog);
+        // audioAnalog = max(audioAnalog)
+
         delay(1);
     }
-    // audioAnalog /= MIC_READINGS;
 
     Serial.println(audioAnalog);
+    // double avg = audioAnalog / MIC_READINGS;
+    // Serial.println(avg);
+
+    // audioValue = get_abs_db(audioAnalog);
+
+    // Serial.println(audioAnalog);
+    // Serial.print(audioValue); 
+    // Serial.print(" - ");
+    // Serial.print(audioAnalog);
+    // Serial.println("");
 
     // audioValue = get_abs_db(audioAnalog);
     // Serial.println(audioValue);
